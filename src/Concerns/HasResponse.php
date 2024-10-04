@@ -2,7 +2,7 @@
 
 namespace Saidqb\LaravelSupport\Concerns;
 
-use App\Supports\ResponseCode;
+use Saidqb\LaravelSupport\ResponseCode;
 
 trait HasResponse
 {
