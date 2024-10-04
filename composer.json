@@ -1,0 +1,41 @@
+{
+    "name": "saidqb/laravel-support",
+    "description": "laravel-support",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "php",
+        "dependency",
+        "library"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Saidqb\\LaravelSupport\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Saidqb\\LaravelSupport\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "saidqb",
+            "email": "saidqb@gmail.com"
+        }
+    ],
+     "scripts": {
+        "test-str": "vendor/bin/phpunit tests/Strtest.php"
+    },
+    "require": {
+        "php": "^8.1",
+        "str/str": "^1.1",
+        "doctrine/collections": "^2.2",
+        "phlak/strgen": "^3.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "phpunit/phpunit": "10.5"
+    }
+}
