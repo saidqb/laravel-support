@@ -143,7 +143,7 @@ trait HasResponse
     static function response($data = [], $status = ResponseCode::HTTP_OK, $message = ResponseCode::HTTP_OK_MESSAGE, $error_code = 0)
     {
         // rebuild the response data, if the data is not an array
-        if (is_string($data) || is_numeric($data)){
+        if (is_string($data) || is_numeric($data)) {
             $error_code = $message == ResponseCode::HTTP_OK_MESSAGE ? $error_code : $message;
             $message = $status == ResponseCode::HTTP_OK ? $error_code : $status;
             $status = $data;
@@ -178,11 +178,11 @@ trait HasResponse
             if (!isset($data['pagination'])) {
                 $resData['data']['pagination'] = (object) null;
             } else {
-                if ($data['pagination'] === false) {
-                    unset($resData['data']['pagination']);
-                }
-
                 $resData['data']['pagination'] = $data['pagination'];
+            }
+
+            if ($resData['data']['pagination'] === false) {
+                unset($resData['data']['pagination']);
             }
 
             return response()->json($resData, $status);
