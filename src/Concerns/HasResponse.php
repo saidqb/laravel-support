@@ -214,6 +214,9 @@ trait HasResponse
         return static::generateResponse($resData, $status);
     }
 
+
+   /* The `generateResponse` function is responsible for generating the final JSON response based on
+   the provided data and status code. */
     static function generateResponse($resData, $status)
     {
         if (static::$responseVersion == 'results') {
