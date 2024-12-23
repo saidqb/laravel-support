@@ -9,6 +9,12 @@ trait HasResponse
 
     static $responseJsonDecode = array();
     static $responseFilterConfig = array();
+    static $responseVersion = 'data'; // data, results
+
+    static function setResponseVersion($version = 'data')
+    {
+        static::$responseVersion = $version;
+    }
 
     static function responseDecodeFor($arr = [])
     {
@@ -185,14 +191,15 @@ trait HasResponse
                 unset($resData['data']['pagination']);
             }
 
-            return response()->json($resData, $status);
+
+            return static::generateResponse($resData, $status);
         }
 
         if (isset($data['item'])) {
 
             $data['item'] = static::filterResponseField($data['item']);
             $resData['data'] = $data;
-            return response()->json($resData, $status);
+            return static::generateResponse($resData, $status);
         }
 
         $item = (object) null;
@@ -204,6 +211,29 @@ trait HasResponse
         }
 
         $resData['data']['item'] = $item;
+        return static::generateResponse($resData, $status);
+    }
+
+    static function generateResponse($resData, $status)
+    {
+        if (static::$responseVersion == 'results') {
+
+            $resData['results'] = $resData['data'];
+            if (isset($resData['data']['items'])) {
+                $resData['results']['data'] = $resData['results']['items'];
+                unset($resData['results']['items']);
+            }
+
+            if (isset($resData['data']['item'])) {
+                $resData['results']['data'] = $resData['results']['item'];
+                unset($resData['results']['item']);
+            }
+
+            ksort($resData['results']);
+            unset($resData['data']);
+
+            return response()->json($resData, $status);
+        }
         return response()->json($resData, $status);
     }
 }
