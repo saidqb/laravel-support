@@ -179,13 +179,15 @@ trait HasResponse
                 }
             }
 
-            $resData['data']['items'] = $items;
+
+            $data['items'] = $items;
 
             if (!isset($data['pagination'])) {
-                $resData['data']['pagination'] = (object) null;
+                $data['pagination'] = (object) null;
             } else {
-                $resData['data']['pagination'] = $data['pagination'];
+                $data['pagination'] = $data['pagination'];
             }
+            $resData['data'] = $data;
 
             if ($resData['data']['pagination'] === false) {
                 unset($resData['data']['pagination']);
@@ -210,12 +212,13 @@ trait HasResponse
             }
         }
 
-        $resData['data']['item'] = $item;
+        $data['item'] = $item;
+        $resData['data'] = $item;
         return static::generateResponse($resData, $status);
     }
 
 
-   /* The `generateResponse` function is responsible for generating the final JSON response based on
+    /* The `generateResponse` function is responsible for generating the final JSON response based on
    the provided data and status code. */
     static function generateResponse($resData, $status)
     {
