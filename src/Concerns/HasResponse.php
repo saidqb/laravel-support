@@ -212,8 +212,8 @@ trait HasResponse
             }
         }
 
-        $data['item'] = $item;
-        $resData['data'] = $data;
+        $allData['item'] = $data;
+        $resData['data'] = $allData;
         return static::generateResponse($resData, $status);
     }
 
