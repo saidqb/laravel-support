@@ -213,7 +213,7 @@ trait HasResponse
         }
 
         $data['item'] = $item;
-        $resData['data'] = $item;
+        $resData['data'] = $data;
         return static::generateResponse($resData, $status);
     }
 
