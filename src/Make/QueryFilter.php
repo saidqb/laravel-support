@@ -233,23 +233,26 @@ class QueryFilter
             $req['limit'] = static::$defaultLimit;
         }
 
-        $columns = [];
         foreach ($this->select as $key => $v) {
             $v = trim($v);
             if (strpos($v, ' as ') !== false) {
                 $vArr = explode(' as ', $v);
                 $v = trim($vArr[1]);
+                $this->tableSelectAs[$v] = trim($vArr[0]);
             }
-            $columns[] = $v;
+
+            if (strpos($v, '.') !== false) {
+                $vArrx = explode('.', $v);
+                $rn = trim($vArrx[1]);
+                $this->tableSelectAs[$rn] = $v;
+            }
         };
 
-        if (count($columns) == 1 && isset($columns[0]) && $columns[0] == '*') {
-        } else {
-            $this->tableSelectAs = $columns;
-        }
 
 
-        if (!empty($this->tableSelectAs)) {
+        $tableSelectAs = array_keys($this->tableSelectAs);
+
+        if (!empty($tableSelectAs)) {
             $query->where(function ($query) {
                 $this->query = $query;
                 $query = self::filterQuery();
@@ -265,27 +268,36 @@ class QueryFilter
             });
         }
 
-        if (!empty($req['sort'])) {
+        if (!empty($req['sort']) && in_array($req['sort'], $tableSelectAs)) {
+
             if (is_array($req['sort']) && !empty($req['sort'])) {
                 foreach ($req['sort'] as $k => $v) {
-                    if (in_array($k, $this->tableSelectAs) && in_array(strtolower($v), $defaultData['order_by'])) {
+                    if (in_array($k, $tableSelectAs) && in_array(strtolower($v), $defaultData['order_by'])) {
                         $query->orderBy($k, $v);
                     }
                 }
             } else {
+
                 if (static::startsWith($req['sort'], '-')) {
                     $columnsSort = substr($req['sort'], 1);
-                    if (in_array($columnsSort, $this->tableSelectAs)) {
+                    if (in_array($columnsSort, $tableSelectAs)) {
                         $query->orderBy($columnsSort, 'desc');
                     }
                 } else {
                     $columnsSort = $req['sort'];
-                    if (in_array($columnsSort, $this->tableSelectAs)) {
-                        $query->orderBy($req['sort'], 'asc');
+                    if (in_array($columnsSort, $tableSelectAs)) {
+                        if (!in_array(strtolower($v), $defaultData['order_by'])) {
+                            $query->orderBy($req['sort'], 'asc');
+                        } else {
+                            $query->orderBy($req['sort'], $req['order_by']);
+                        }
                     }
                 }
             }
         }
+
+
+
 
         $items = $query->paginate($req['limit'], $this->select);
 
@@ -301,10 +313,13 @@ class QueryFilter
     public function filterQuery()
     {
         $query = $this->query;
-        $tableSelectAs = $this->tableSelectAs;
+        $tableSelectAs = array_keys($this->tableSelectAs);
 
-        foreach ($this->request as $field => $value) {
-            if (in_array($field, $tableSelectAs)) {
+        // print_r($this->tableSelectAs);die;
+
+        foreach ($this->request as $rfk => $value) {
+            if (in_array($rfk, $tableSelectAs)) {
+                $field = $this->tableSelectAs[$rfk];
                 if (is_array($value)) {
                     foreach ($value as $comparison => $val) {
                         if ($val !== '') {
