@@ -264,7 +264,8 @@ class QueryFilter
         if (!empty($this->search) && !empty($req['search'])) {
             $query->where(function ($query) use ($req) {
                 foreach ($this->search as $key => $v) {
-                    $query->orWhere($v, 'LIKE', "%{$req['search']}%");
+                    $val = $this->tableSelectAs[$v];
+                    $query->orWhere($val, 'LIKE', "%{$req['search']}%");
                 }
             });
         }
@@ -322,7 +323,7 @@ class QueryFilter
                 $field = $this->tableSelectAs[$rfk];
                 if (is_array($value)) {
                     foreach ($value as $comparison => $val) {
-                        if ($val !== '') {
+                        if ($val !== '' && $val !== null) {
                             switch ($comparison) {
                                 case 'eq':
                                     $query->where($field, '=', $val);
@@ -373,7 +374,7 @@ class QueryFilter
                         }
                     }
                 } else {
-                    if ($value !== '') {
+                    if ($value !== '' && $value !== null) {
                         $query->where($field, '=', $value);
                     }
                 }

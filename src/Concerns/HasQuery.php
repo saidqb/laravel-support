@@ -284,7 +284,7 @@ trait HasQuery
 
                 if (is_array($value)) {
                     foreach ($value as $comparison => $val) {
-                        if ($val !== '') {
+                        if ($val !== '' && $val !== null) {
                             switch ($comparison) {
                                 case 'eq':
                                     $query->where($field, '=', $val);
@@ -335,7 +335,7 @@ trait HasQuery
                         }
                     }
                 } else {
-                    if ($value !== '') {
+                    if ($value !== '' && $value !== null) {
                         $query->where($field, '=', $value);
                     }
                 }
