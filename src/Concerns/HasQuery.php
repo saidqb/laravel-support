@@ -199,23 +199,27 @@ trait HasQuery
             $req['limit'] = static::$noLimit;
         }
 
-        $columns = [];
+
         foreach (static::$tableSelect as $key => $v) {
             $v = trim($v);
             if (strpos($v, ' as ') !== false) {
                 $vArr = explode(' as ', $v);
                 $v = trim($vArr[1]);
+                static::$tableSelectAs[$v] = trim($vArr[0]);
+            } else if (strpos($v, '.') !== false) {
+                $vArrx = explode('.', $v);
+                $rn = trim($vArrx[1]);
+                static::$tableSelectAs[$rn] = $v;
+            } else {
+                static::$tableSelectAs[$v] = $v;
             }
-            $columns[] = $v;
+
         };
 
-        if (count($columns) == 1 && isset($columns[0]) && $columns[0] == '*') {
-        } else {
-            static::$tableSelectAs = $columns;
-        }
+        $tableSelectAs = array_keys(static::$tableSelectAs);
 
 
-        if (!empty(static::$tableSelectAs)) {
+        if (!empty($tableSelectAs)) {
             $query->where(function ($query) {
                 static::$queryBuilder = $query;
                 $query = self::filterQuery();
@@ -234,20 +238,24 @@ trait HasQuery
         if (!empty($req['sort'])) {
             if (is_array($req['sort']) && !empty($req['sort'])) {
                 foreach ($req['sort'] as $k => $v) {
-                    if (in_array($k, static::$tableSelectAs) && in_array(strtolower($v), $defaultData['order_by'])) {
+                    if (in_array($k, $tableSelectAs) && in_array(strtolower($v), $defaultData['order_by'])) {
                         $query->orderBy($k, $v);
                     }
                 }
             } else {
                 if (static::startsWith($req['sort'], '-')) {
                     $columnsSort = substr($req['sort'], 1);
-                    if (in_array($columnsSort, static::$tableSelectAs)) {
+                    if (in_array($columnsSort, $tableSelectAs)) {
                         $query->orderBy($columnsSort, 'desc');
                     }
                 } else {
                     $columnsSort = $req['sort'];
-                    if (in_array($columnsSort, static::$tableSelectAs)) {
-                        $query->orderBy($req['sort'], 'asc');
+                    if (in_array($columnsSort, $tableSelectAs)) {
+                        if (in_array(strtolower($req['order_by']), $defaultData['order_by'])) {
+                            $query->orderBy($columnsSort, $req['order_by']);
+                        } else {
+                            $query->orderBy($columnsSort, 'asc');
+                        }
                     }
                 }
             }
@@ -267,10 +275,13 @@ trait HasQuery
     static function filterQuery()
     {
         $query = static::$queryBuilder;
-        $tableSelectAs = static::$tableSelectAs;
+        $tableSelectAs = array_keys(static::$tableSelectAs);
 
-        foreach (static::$request as $field => $value) {
-            if (in_array($field, $tableSelectAs)) {
+        foreach (static::$request as $rfk => $value) {
+
+            if (in_array($rfk, $tableSelectAs)) {
+                $field = static::$tableSelectAs[$rfk];
+
                 if (is_array($value)) {
                     foreach ($value as $comparison => $val) {
                         if ($val !== '') {

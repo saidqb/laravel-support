@@ -239,13 +239,14 @@ class QueryFilter
                 $vArr = explode(' as ', $v);
                 $v = trim($vArr[1]);
                 $this->tableSelectAs[$v] = trim($vArr[0]);
-            }
-
-            if (strpos($v, '.') !== false) {
+            } else if (strpos($v, '.') !== false) {
                 $vArrx = explode('.', $v);
                 $rn = trim($vArrx[1]);
                 $this->tableSelectAs[$rn] = $v;
+            } else {
+                $this->tableSelectAs[$v] = $v;
             }
+
         };
 
 
@@ -285,10 +286,10 @@ class QueryFilter
                 } else {
                     $columnsSort = $req['sort'];
                     if (in_array($columnsSort, $tableSelectAs)) {
-                        if (!in_array(strtolower($req['order_by']), $defaultData['order_by'])) {
-                            $query->orderBy($columnsSort, 'asc');
-                        } else {
+                        if (in_array(strtolower($req['order_by']), $defaultData['order_by'])) {
                             $query->orderBy($columnsSort, $req['order_by']);
+                        } else {
+                            $query->orderBy($columnsSort, 'asc');
                         }
                     }
                 }
