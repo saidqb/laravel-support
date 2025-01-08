@@ -268,8 +268,7 @@ class QueryFilter
             });
         }
 
-        if (!empty($req['sort']) && in_array($req['sort'], $tableSelectAs)) {
-
+        if (!empty($req['sort'])) {
             if (is_array($req['sort']) && !empty($req['sort'])) {
                 foreach ($req['sort'] as $k => $v) {
                     if (in_array($k, $tableSelectAs) && in_array(strtolower($v), $defaultData['order_by'])) {
@@ -286,10 +285,10 @@ class QueryFilter
                 } else {
                     $columnsSort = $req['sort'];
                     if (in_array($columnsSort, $tableSelectAs)) {
-                        if (!in_array(strtolower($v), $defaultData['order_by'])) {
-                            $query->orderBy($req['sort'], 'asc');
+                        if (!in_array(strtolower($req['order_by']), $defaultData['order_by'])) {
+                            $query->orderBy($columnsSort, 'asc');
                         } else {
-                            $query->orderBy($req['sort'], $req['order_by']);
+                            $query->orderBy($columnsSort, $req['order_by']);
                         }
                     }
                 }
