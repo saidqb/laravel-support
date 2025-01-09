@@ -26,10 +26,18 @@ class QueryFilter
     public $search;
     public $request;
 
+    public $setPaginationType = 'default';
+
 
     static function make()
     {
         return new static();
+    }
+
+    public function paginationType($type = 'default')
+    {
+        $this->setPaginationType = $type;
+        return $this;
     }
 
     public function queryPaginateCustom($total, $pagenum, $limit)
@@ -118,32 +126,43 @@ class QueryFilter
     }
 
 
-    public function queryPaginateGenerate($res, $laravel = false)
+    public function queryPaginateGenerate($res)
     {
-        if ($laravel === true) {
+
+        if ($this->setPaginationType === 'laravel') {
 
             if ($res->perPage() == $this->defaultLimit) {
                 $limit = $res->total();
             }
 
             $showPage = 5;
-            $pagination['count'] = $res->count();
-            $pagination['currentPage'] = $res->currentPage();
-            $pagination['firstItem'] = static::emptyVal($res->firstItem(), 0);
-            $pagination['hasPages'] = $res->hasPages();
-            $pagination['hasMorePages'] = $res->hasMorePages();
-            $pagination['lastItem'] = static::emptyVal($res->lastItem(), 0);
-            $pagination['lastPage'] = $res->lastPage();
-            $pagination['nextPageUrl'] = static::emptyVal($res->nextPageUrl(), '');
-            $pagination['onFirstPage'] = $res->onFirstPage();
-            $pagination['perPage'] = $res->perPage();
-            $pagination['previousPageUrl'] = static::emptyVal($res->previousPageUrl());
-            $pagination['total'] = $res->total();
-            $pagination['getPageName'] = $res->getPageName();
-            $pagination['showPage'] = $showPage;
+            $pagination['total_data'] = $res->total();
+            $pagination['total_display'] = $res->count();
+            $pagination['current_page'] = $res->currentPage();
+            $pagination['total_page'] = $res->lastPage();
+            $pagination['limit'] = $res->perPage();
+            $pagination['start'] = static::emptyVal($res->firstItem(), 0);
+            $pagination['end'] = static::emptyVal($res->lastItem(), 0);
+
+            $url = $res->nextPageUrl();
+            $pagination['next_page_url'] = 0;
+            if ($url) {
+                $url_components = parse_url($url);
+                parse_str($url_components['query'], $params);
+                $pagination['next_page_url'] = (int) $params['page'];
+            }
+
+            $url = $res->previousPageUrl();
+            $pagination['prev_page_url'] = $res->lastPage();
+            if ($url) {
+                $url_components = parse_url($url);
+                parse_str($url_components['query'], $params);
+                $pagination['prev_page_url'] = (int) $params['page'];
+            }
+
 
             $from = $res->currentPage();
-            $to = $from + $pagination['showPage'] - 1;
+            $to = $from + $showPage - 1;
             $end = $res->lastPage();
             $detail = [];
 
@@ -246,7 +265,6 @@ class QueryFilter
             } else {
                 $this->tableSelectAs[$v] = $v;
             }
-
         };
 
 
@@ -304,7 +322,7 @@ class QueryFilter
 
 
         $content['items'] = $items->items();
-        $content['pagination'] = $this->queryPaginateGenerate($items, false);
+        $content['pagination'] = $this->queryPaginateGenerate($items);
         return $content;
     }
 
