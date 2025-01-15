@@ -129,7 +129,7 @@ class QueryFilter
     public function queryPaginateGenerate($res)
     {
 
-        if ($this->setPaginationType === 'laravel') {
+        if ($this->setPaginationType === 'default') {
 
             if ($res->perPage() == $this->defaultLimit) {
                 $limit = $res->total();
