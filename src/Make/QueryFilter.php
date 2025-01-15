@@ -318,11 +318,10 @@ class QueryFilter
 
 
 
-        $items = $query->paginate($req['limit'], $this->select);
+        $paginate = $query->paginate($req['limit'], $this->select);
 
-
-        $content['items'] = $items->items();
-        $content['pagination'] = $this->queryPaginateGenerate($items);
+        $content['items'] = $query->get($this->select);
+        $content['pagination'] = $this->queryPaginateGenerate($paginate);
         return $content;
     }
 
@@ -344,7 +343,11 @@ class QueryFilter
                         if ($val !== '' && $val !== null) {
                             switch ($comparison) {
                                 case 'eq':
-                                    $query->where($field, '=', $val);
+                                    if ($this->validateDate($val, 'Y-m-d')) {
+                                        $query->whereDate($field, '=', $val);
+                                    } else {
+                                        $query->where($field, '=', $val);
+                                    }
                                     break;
 
                                 case 'neq':
@@ -352,19 +355,35 @@ class QueryFilter
                                     break;
 
                                 case 'lt':
-                                    $query->where($field, '<', $val);
+                                    if ($this->validateDate($val, 'Y-m-d')) {
+                                        $query->whereDate($field, '<', $val);
+                                    } else {
+                                        $query->where($field, '<', $val);
+                                    }
                                     break;
 
                                 case 'gt':
-                                    $query->where($field, '>', $val);
+                                    if ($this->validateDate($val, 'Y-m-d')) {
+                                        $query->whereDate($field, '>', $val);
+                                    } else {
+                                        $query->where($field, '>', $val);
+                                    }
                                     break;
 
                                 case 'lte':
-                                    $query->where($field, '<=', $val);
+                                    if ($this->validateDate($val, 'Y-m-d')) {
+                                        $query->whereDate($field, '<=', $val);
+                                    } else {
+                                        $query->where($field, '<=', $val);
+                                    }
                                     break;
 
                                 case 'gte':
-                                    $query->where($field, '>=', $val);
+                                    if ($this->validateDate($val, 'Y-m-d')) {
+                                        $query->whereDate($field, '>=', $val);
+                                    } else {
+                                        $query->where($field, '>=', $val);
+                                    }
                                     break;
 
                                 case 'le':
@@ -388,16 +407,46 @@ class QueryFilter
                                     $val = !is_array($val) ? explode(',', $val) : $val;
                                     $query->whereNotIn($field, $val);
                                     break;
+
+                                case 'btw':
+                                    $val = !is_array($val) ? explode(',', $val) : $val;
+                                    if (count($val) == 2) $query->whereBetween($field, $val);
+                                    break;
+
+                                case 'nbtw':
+                                    $val = !is_array($val) ? explode(',', $val) : $val;
+                                    if (count($val) == 2) $query->whereBetween($field, $val);
+                                    break;
+
+                                case 'isn':
+                                    $val = !is_array($val) ? explode(',', $val) : $val;
+                                    $query->whereNull($field, $val);
+                                    break;
+
+                                case 'nisn':
+                                    $val = !is_array($val) ? explode(',', $val) : $val;
+                                    $query->whereNotNull($field, $val);
+                                    break;
                             }
                         }
                     }
                 } else {
                     if ($value !== '' && $value !== null) {
-                        $query->where($field, '=', $value);
+                        if ($this->validateDate($value, 'Y-m-d')) {
+                            $query->whereDate($field, '=', $value);
+                        } else {
+                            $query->where($field, '=', $value);
+                        }
                     }
                 }
             }
         }
         return $query;
+    }
+
+    public function validateDate($date, $format = 'Y-m-d H:i:s')
+    {
+        $d = \DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) == $date;
     }
 }
