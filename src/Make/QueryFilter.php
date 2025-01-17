@@ -320,7 +320,9 @@ class QueryFilter
 
         $paginate = $query->paginate($req['limit'], $this->select);
 
-        $content['items'] = $query->get($this->select);
+        $items = $query->get($this->select);
+
+        $content['items'] = $items?->toArray();
         $content['pagination'] = $this->queryPaginateGenerate($paginate);
         return $content;
     }
