@@ -123,7 +123,6 @@ class Response
 
                     $results['pagination'] = $paginate;
                 }
-                
             } else {
                 $data = $this->data;
                 $results['data'] = $data;
@@ -181,6 +180,15 @@ class Response
             ->message('Validation Error')
             ->errorCode('validation_error')
             ->httpStatus(200);
+        return $this;
+    }
+
+    public function error()
+    {
+        $this->status(500)
+            ->message('Internal Server Error')
+            ->errorCode('internal_server_error')
+            ->httpStatus(500);
         return $this;
     }
 
