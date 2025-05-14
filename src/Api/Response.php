@@ -1,7 +1,7 @@
 <?php
 namespace Saidqb\LaravelSupport\Api;
 
-use App\Supports\Api\Paginate;
+use Saidqb\LaravelSupport\Api\Paginate;
 use Illuminate\Support\Arr;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -37,6 +37,12 @@ class Response
     public static function make($data = [])
     {
         return new static($data);
+    }
+
+    public function data($data = null)
+    {
+        $this->data = $data;
+        return $this;
     }
 
     public function append($key, $value = null)
@@ -218,4 +224,6 @@ class Response
             ->httpStatus(200);
         return $this;
     }
+
+
 }
