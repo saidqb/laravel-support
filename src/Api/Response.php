@@ -182,10 +182,10 @@ class Response
 
     public function validationError()
     {
-        $this->status(412)
+        $this->status(422)
             ->message('Validation Error')
             ->errorCode('validation_error')
-            ->httpStatus(200);
+            ->httpStatus(422);
         return $this;
     }
 
