@@ -221,7 +221,7 @@ class Response
         $this->status(404)
             ->message('Not Found')
             ->errorCode('not_found')
-            ->httpStatus(200);
+            ->httpStatus(404);
         return $this;
     }
 
